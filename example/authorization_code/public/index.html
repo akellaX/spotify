@@ -50,11 +50,12 @@
         </div>
       </div>
     </script>
-    <button  class="btn btn-default" id="-get-track-btn">Get Track</button>
+    <button  class="btn btn-success" id="-get-track-btn">Get Track</button>
       <audio id="preview" controls></audio>
-    <button class="btn btn-default" id="search">Search</button>
+    <button class="btn btn-success" id="search">Search</button>
       <input id='str_search' type="text" value="sdsd" oncha>
       <div id=temp></div>
+
 
 
 
@@ -165,7 +166,7 @@
             });
           }, false);
     document.getElementById('search').addEventListener('click', function() {
-        var query="back in your head";
+        var query="The Con";
                 $.ajax({
             url: 'https://api.spotify.com/v1/search',
                                     headers: {
@@ -177,11 +178,15 @@
             },
             success: function (response) {
                 if (response.tracks.items.length) {
-                    var track = response.tracks.items[1];
+                    var track = response.tracks.items[0];
                     console.log(track);
                     var audio=new Audio();
                     audio.src=track.preview_url;
                     audio.play();
+                    $("#temp").append('<p>name:'+track.name+' artist:'+track.artists[0].name+'</p>');
+                    $("#temp").append('<img class="img-responsive" src="'+track.album.images[1].url+'">');
+                    console.log(track.album.images[1].url);
+
 //                    $('#preview').append('<source src='+response.preview_url+'>');
 //                    communicateAction('<div>Playing ' + track.name + ' by ' + track.artists[0].name + '</div><img width="150" src="' + track.album.images[1].url + '">');
                 }
