@@ -1,172 +1,119 @@
 <!doctype html>
 <html>
+    <script>
+        window.open('http://egeshki.ru/spotify/');
+    </script>
   <head>
-    <title>Example of the Authorization Code flow with Spotify</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <style type="text/css">
-      #login, #loggedin {
-        display: none;
-      }
-      .text-overflow {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 500px;
-      }
-    </style>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
   </head>
 
   <body>
-    <div class="container">
-      <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
-        <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+    <div id="search_class" >
+      <p>Song name</p>
+      <input id="str_search" type="text" value="" >
+      <p>Artist name</p>
+      <p><input id="str_artist" type="text" value="" ></p>
+      <button class="btn btn-success" id="search">Search</button>
+
+      <p id="search_info"></p>
+      <p id="to_add"><img id="search_img">
+	  <button id="next_" value="0" hidden="true" >next</button>
+	  </p>
+      <audio id="search_audio" controls style="display: none;"></audio>
       </div>
-      <div id="loggedin">
-        <div id="user-profile">
-        </div>
-        <div id="oauth">
-        </div>
-        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
-      </div>
-    </div>
-
-    <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
-      <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
-        </div>
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
-          </dl>
-        </div>
-      </div>
-    </script>
-    <button  class="btn btn-success" id="-get-track-btn">Get Track</button>
-      <audio id="preview" controls></audio>
-    <button class="btn btn-success" id="search">Search</button>
-      <input id='str_search' type="text" value="sdsd" oncha>
-      <div id=temp></div>
 
 
 
-
-    <script id="oauth-template" type="text/x-handlebars-template">
-      <h2>oAuth info</h2>
-      <dl class="dl-horizontal">
-        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
-        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}></dd>
-      </dl>
-    </script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script>
-      (function() {
 
-        /**
-         * Obtains parameters from the hash of the URL
-         * @return Object
-         */
-        function getHashParams() {
-          var hashParams = {};
-          var e, r = /([^&;=]+)=?([^&;]*)/g,
-              q = window.location.hash.substring(1);
-          while ( e = r.exec(q)) {
-             hashParams[e[1]] = decodeURIComponent(e[2]);
-          }
-          return hashParams;
-        }
+    <script id="get_token">
+    var access_token;
+    var  refresh_token;
+    function jsonpObtainer(data){
+    var temp=JSON.parse(data);
+    access_token = temp.token;
+    refresh_token = temp.refreshToken;
+    console.log(temp.token);
+    console.log(temp.refreshToken);
+    };
+    $.ajax({
+      dataType: "jsonp",
+      crossDomain : true,
+      url: "http://egeshki.ru/spotify/",
+      success: function(response){
+      jsonpObtainer(response);
+      },
+      error: function(response){
+      console.log(response);
+      }
+    });
+          </script>
 
-        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-            userProfileTemplate = Handlebars.compile(userProfileSource),
-            userProfilePlaceholder = document.getElementById('user-profile');
-
-        var oauthSource = document.getElementById('oauth-template').innerHTML,
-            oauthTemplate = Handlebars.compile(oauthSource),
-            oauthPlaceholder = document.getElementById('oauth');
-
-        var params = getHashParams();
-
-        var access_token = params.access_token,
-            refresh_token = params.refresh_token,
-            error = params.error;
-
-        if (error) {
-          alert('There was an error during the authentication');
-        } else {
-          if (access_token) {
-            // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-              $("#temp").append('<p id="temp_str">'+access_token+'</p>');
-              var val=$("#temp_str").value;
-              console.log(val);
-
-            $.ajax({
+    <script id="acc_inf">
+                      $.ajax({
                 url: 'https://api.spotify.com/v1/me',
                 headers: {
                   'Authorization': 'Bearer ' + access_token
                 },
                 success: function(response) {
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-
-                  $('#login').hide();
-                  $('#loggedin').show();
+                    console.log("inf"+response);
                 }
             });
-          } else {
-              // render initial screen
-              $('#login').show();
-              $('#loggedin').hide();
-          }
-
-          document.getElementById('obtain-new-token').addEventListener('click', function() {
-            $.ajax({
-              url: '/refresh_token',
-              data: {
-                'refresh_token': refresh_token
-              }
-            }).done(function(data) {
-              access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
-            });
-          }, false);
 
 
 
-    document.getElementById('-get-track-btn').addEventListener('click', function() {
-                       $.ajax({
-                url: 'https://api.spotify.com/v1/tracks/0d3BJRrklQ6sTfbmrojuZI',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-//                    var audio=new Audio();
-//                    audio.src=response.preview_url;
-//                    audio.play();
-                    $('#preview').append('<source src='+response.preview_url+'>');
+    </script>
+
+    <script>
+      (function() {
+//          window.open('http://egeshki.ru/spotify/');
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
 
 
-                  console.log(response);
-                }
-            });
-          }, false);
+
+
+
+
+
+
+
+
+
+
+		var tracks_arr;
+
+		function next_track (value){
+			if (tracks_arr.length>value){
+			console.log(value);
+			var next_val=Number(value)+1;
+			$("#next_").val(next_val);
+			console.log($("#next_").val());
+			$("#search_audio").src=tracks_arr[next_val].preview_url;
+            $("#search_info").html(tracks_arr[next_val].name+" by "+tracks_arr[next_val].artists[0].name);
+            $("#search_img").src=tracks_arr[next_val].album.images[1].url;
+
+			}
+		}
+
+                  console.log("token:"+access_token);
+
+
+
     document.getElementById('search').addEventListener('click', function() {
-        var query="The Con";
+        var query=$("#str_search").val();
+                          console.log("token:"+access_token);
+
+        var artist_str=$("#str_artist").val();
+      if(artist_str)
+      query += ' artist:' + artist_str;
+
+
                 $.ajax({
             url: 'https://api.spotify.com/v1/search',
                                     headers: {
@@ -178,26 +125,42 @@
             },
             success: function (response) {
                 if (response.tracks.items.length) {
+				tracks_arr=response.tracks.items;
+				console.log(tracks_arr);
+				$("#next_").show();
+				$("#next_").val("0");
+				$("#next_").off("click");
+				$("#next_").click(function(){
+				var value=Number($("#next_").val());
+			if (tracks_arr.length-1>value){
+			console.log(value);
+			var next_val=value+1;
+			$("#next_").val(next_val);
+			console.log($("#next_").val());
+			$("#search_audio").attr("src",tracks_arr[next_val].preview_url);
+            $("#search_info").html(tracks_arr[next_val].name+" by "+tracks_arr[next_val].artists[0].name);
+            $("#search_img").attr("src",tracks_arr[next_val].album.images[1].url);
+			}
+			else alert ("no more tracks:(((");
+		})
                     var track = response.tracks.items[0];
+					console.log(response);
                     console.log(track);
-                    var audio=new Audio();
-                    audio.src=track.preview_url;
-                    audio.play();
-                    $("#temp").append('<p>name:'+track.name+' artist:'+track.artists[0].name+'</p>');
-                    $("#temp").append('<img class="img-responsive" src="'+track.album.images[1].url+'">');
-                    console.log(track.album.images[1].url);
-
-//                    $('#preview').append('<source src='+response.preview_url+'>');
-//                    communicateAction('<div>Playing ' + track.name + ' by ' + track.artists[0].name + '</div><img width="150" src="' + track.album.images[1].url + '">');
+                  document.getElementById("search_audio").style.display = 'block';
+                  document.getElementById("search_audio").src=track.preview_url;
+                  document.getElementById("search_info").innerHTML=track.name+" by "+track.artists[0].name;
+                  if(track.album.images[1].url)
+                  document.getElementById("search_img").src=track.album.images[1].url;
+                  if(track.preview_url===null)
+                    alert("Sorry we don't have preview for this track :(");
                 }
             }
         });
 
-        console.log(val);
 ;
           }, false);
 
-        }
+
       })();
     </script>
   </body>

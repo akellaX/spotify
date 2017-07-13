@@ -1,0 +1,25 @@
+
+<html>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<head>
+
+<body>
+
+<script>
+    $.ajax({
+    url: 'http://egeshki.ru/spotify',
+    dataType: 'jsonp',
+    success: function() { alert("Success"); },
+    error: function() { alert('Failed!'); },
+
+});
+function jsonpObtainer(data){ console.log("response", data);
+};
+
+</script>
+
+</body>
+</head>
+
+
+</html>
